@@ -15,18 +15,21 @@ const SemiGroupVErrorImpl = <SemiGroupVError> {
     concat: (e1, e2) => new VError.MultiError([e1, e2])
 };
 
+// The function to do the commit.
 interface CommitOp {
     commit: Task<Either<VError, {}>>;
 }
-interface SaveOp {
-    saveData: Task<Either<VError, {}>>;
+// The rollback operation requires the initial state to restore.
+interface SaveOp<A> {
+    saveData: Task<Either<VError, A>>;
 }
-interface RollbackOp {
-    rollback: Task<Either<SemiGroupVError, {}>>
+//
+interface RollbackOp<A> {
+    rollback(ta: Task<A>): Task<Either<VError, {}>>
 }
 
 
-export type FpOperation = CommitOp & SaveOp & RollbackOp & {
+export type FpOperation<A> = CommitOp & SaveOp<A> & RollbackOp<A> & {
     operationId: string
 };
 
@@ -45,13 +48,14 @@ const appendCommitFromCommit = (op: CommitOp) => pipe(
 // Validations for RollbackOperations
 const applicativeValidation = getValidation(SemiGroupVErrorImpl);
 
-// TODO
-const appendRollBackFromRollback = (rl: RollbackOp) => pipe(
-    rl.rollback,
-    T.chainFirst(e => T.of(pipe(sequenceT(applicativeValidation)(e))))
+// We need a asynchronous computation for the retrieve the value, the appendRollBack operation
+//  must not require the value, we need to build the lazy execution.
+const appendRollBackFromRollback = <A>(rl: RollbackOp<A>, a: Task<A>) => pipe(
+    rl.rollback(a),
+    T.chainFirst(e => T.of(sequenceT(applicativeValidation)(e)))
 );
 
 // TODO
-export const appendFpOperation = (o: FpOperation) : FpOperation => <FpOperation>{
+export const appendFpOperation = <A>(o: FpOperation<A>) : FpOperation<A> => <FpOperation<A>>{
 
 }
