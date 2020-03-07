@@ -6,6 +6,6 @@ export enum TransactionOperationState {
 
 export interface TransactionOperationResult {
     state : TransactionOperationState;
-    error?: Error;
+    error: Error | null;
     antErr?: TransactionOperationResult
 }

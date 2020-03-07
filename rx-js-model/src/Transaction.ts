@@ -2,10 +2,10 @@ import {ITransactionOperation} from "./ITransactionOperation";
 import {Observable, of} from "rxjs";
 import {TransactionOperationResult, TransactionOperationState} from "./TransactionOperationResult";
 import {flatMap, map} from "rxjs/operators";
-import * as VError from "verror";
+// import * as VError from "verror";
 import {TransactionResult} from "./TransactionResult";
 
-// import {VError} from "verror";
+import {VError} from "verror";
 
 /**
  * Esta clase permite anidar transacciones, es una representación recursiva,
@@ -43,8 +43,8 @@ export class Transaction implements ITransactionOperation {
 
     addOperations(operations: ITransactionOperation[]) : this {
         if (this.started) throw new Error("The Transaction has been started, you can't add new operation.");
-        for (let i = 0; i < operations.length; i++)
-            this.addOperation(operations[i]);
+        for (const i of operations)
+            this.addOperation(i);
         return this;
     }
 
@@ -52,7 +52,6 @@ export class Transaction implements ITransactionOperation {
         return this.doOperation().pipe(
             flatMap(result => {
                 if (result.state === TransactionOperationState.ERROR) {
-                    // console.log(result);
                     return this.rollback().pipe(
                         map(result => <TransactionResult>{
                             transactionOperationResult: result,
@@ -61,12 +60,12 @@ export class Transaction implements ITransactionOperation {
                         })
                     );
                 } else {
-                    return of(<TransactionResult>{
-                        transactionOperationResult: <TransactionOperationResult>{
+                    return of({
+                        transactionOperationResult: {
                             state: TransactionOperationState.SUCCESS,
-                        },
+                        } as TransactionOperationResult,
                         withRollback:false
-                    });
+                    } as TransactionResult);
                 }
             })
         )
@@ -86,10 +85,10 @@ export class Transaction implements ITransactionOperation {
                 })
             );
         } else {
-            return of(<TransactionOperationResult>{
+            return of({
                 state : TransactionOperationState.SUCCESS,
                 error: null
-            });
+            } as TransactionOperationResult);
         }
     }
 
@@ -99,11 +98,10 @@ export class Transaction implements ITransactionOperation {
             return this.operationList[--this.pointer].rollback().pipe(
                 flatMap(result => {
                     if (result.state === TransactionOperationState.ERROR) {
-                        console.log({text: "on rollback", result: JSON.stringify(result)});
                         return this.rollback().pipe(
                             map(r => <TransactionOperationResult>{
                                 state: TransactionOperationState.ERROR,
-                                error: new VError(result.error, "Rollback error."),
+                                error: new VError(result.error as Error, "Rollback error."),
                                 antErr: r
                             })
                         );
@@ -113,10 +111,10 @@ export class Transaction implements ITransactionOperation {
                 })
             );
         } else {
-            return of(<TransactionOperationResult>{
+            return of({
                 state: TransactionOperationState.SUCCESS,
                 error: this.firstError
-            });
+            } as TransactionOperationResult);
         }
     }
 

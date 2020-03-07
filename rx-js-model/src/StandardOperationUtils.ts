@@ -7,23 +7,23 @@ export function generateStandardOperation(operationObs : Observable<void>, opera
     return new StandardOperation(
         notificator => operationObs.subscribe(
             () => {},
-            error => notificator(<TransactionOperationResult>{
+            error => notificator({
                 state: TransactionOperationState.ERROR,
                 error: error
-            }),
-            () => notificator(<TransactionOperationResult>{
+            } as TransactionOperationResult),
+            () => notificator({
                 state: TransactionOperationState.SUCCESS
-            })
+            } as TransactionOperationResult)
         ),
         notificator => operationCommit.subscribe(
             () => {},
-            error => notificator(<TransactionOperationResult>{
+            error => notificator({
                 state: TransactionOperationState.ERROR,
                 error: error
-            }),
-            () => notificator(<TransactionOperationResult>{
+            } as TransactionOperationResult),
+            () => notificator({
                 state: TransactionOperationState.SUCCESS
-            })
+            } as TransactionOperationResult)
         )
     )
 };
