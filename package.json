@@ -1,0 +1,25 @@
+{
+  "name": "TransactionPatternTs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AdrianMartinezCode/TransactionPatternTs.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AdrianMartinezCode/TransactionPatternTs/issues"
+  },
+  "homepage": "https://github.com/AdrianMartinezCode/TransactionPatternTs#readme",
+  "dependencies": {
+    "rxjs": "^6.5.4",
+    "tslint": "^6.0.0",
+    "verror": "^1.10.0"
+  }
+}
